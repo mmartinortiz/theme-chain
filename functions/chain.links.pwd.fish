@@ -13,9 +13,13 @@ function chain.links.pwd
     set path (string replace ~ '~' "$path")
   end
 
-  # Shorten path segments.
-  set path (string replace -ar '(\.?[^/]{1})[^/]*/' '$1/' "$path")
-
+  # Shorten path segments, using an ellipses if the number of folders
+  # in the path is bigger than 2
+  if test (echo $path | grep -o '/' | wc -l) -gt 2
+    set -l base (echo "$path" | cut -d'/' -f1-2)
+    set path (string join '/' $base '...' (string split -m 1 -r '/' "$path")[2])
+  end
+ 
   echo cyan
   echo "$prefix$path"
 end
